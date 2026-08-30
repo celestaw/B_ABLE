@@ -1,5 +1,11 @@
 import { Polyomino, Rng } from './geometry';
-import { TIER_COLOR, UrgencyTier, daysBetween, tierForDaysLeft } from './urgency';
+import {
+  TIER_COLOR,
+  UrgencyTier,
+  daysBetween,
+  effectiveDaysLeft,
+  tierForDaysLeft,
+} from './urgency';
 
 export interface TaskData {
   id: string;
@@ -63,10 +69,13 @@ export class Task {
     return daysBetween(this.data.due, now);
   }
 
-  /** 完了済みなら確定済みティア、未完了なら現在時刻での見込みティア。 */
+  /**
+   * 完了済みなら確定済みティア、未完了なら現在時刻での見込みティア。
+   * 重要度で実効残日数を補正するので、高重要度ほど早く上位ティア（=大きいミノ）になる。
+   */
   tier(now: Date): UrgencyTier {
     if (this.data.awardedTier !== null) return this.data.awardedTier;
-    return tierForDaysLeft(this.daysLeft(now));
+    return tierForDaysLeft(effectiveDaysLeft(this.daysLeft(now), this.data.importance));
   }
 
   /**
@@ -85,7 +94,9 @@ export class Task {
 
   complete(now: Date): void {
     if (this.data.done) return;
-    this.data.awardedTier = tierForDaysLeft(this.daysLeft(now));
+    this.data.awardedTier = tierForDaysLeft(
+      effectiveDaysLeft(this.daysLeft(now), this.data.importance)
+    );
     this.data.done = true;
     this.data.completedAt = now.getTime();
   }

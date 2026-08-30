@@ -125,13 +125,13 @@ textarea {
 
 /* ---------- リスト（掲示板） ---------- */
 .list-screen {
-  background: #fff;
-  padding: 10px;
+  background: var(--wood-dark);
+  padding: 5px;
 }
 .board-frame {
   position: relative;
   flex: 1;
-  border: 8px solid var(--wood);
+  border: 14px solid var(--wood);
   outline: 3px solid var(--wood-dark);
   background: var(--green);
   padding: 8px;
@@ -326,9 +326,16 @@ textarea {
   background: #ddd;
 }
 
-/* ---------- カレンダー ---------- */
+/* ---------- カレンダー（畑と芝生） ---------- */
 .calendar-screen {
-  background: #fff;
+  /* 空いている下側の空間は芝生。細い縦縞で草っぽさを出す。 */
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0 2px,
+      rgba(0, 0, 0, 0.04) 2px 5px
+    ),
+    linear-gradient(#8ece58, #5c9a34);
   padding: 10px;
 }
 .signboard {
@@ -349,69 +356,113 @@ textarea {
   padding: 4px 10px;
   cursor: pointer;
 }
+/* 畑＝木枠で囲った盛り土の花壇。マスの隙間から畝（土）がのぞく。 */
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  border-left: 1px solid #999;
-  border-top: 1px solid #999;
+  gap: 2px;
+  padding: 3px;
+  border: 6px solid var(--wood);
+  outline: 3px solid var(--wood-dark);
+  background: var(--wood-dark);
 }
 .cal-head {
   text-align: center;
   font-size: 11px;
   padding: 3px 0;
-  border-right: 1px solid #999;
-  border-bottom: 1px solid #999;
-  background: #eee;
+  background: var(--wood);
+  color: #f3e9d8;
 }
+.cal-head.sun {
+  color: #ff9b9b;
+}
+.cal-head.sat {
+  color: #a9d2ff;
+}
+/* 各マス＝耕された土の区画。横の縞で畝を表現する。 */
 .cal-cell {
   aspect-ratio: 1;
   border: none;
-  border-right: 1px solid #999;
-  border-bottom: 1px solid #999;
-  background: #fff;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.12) 0 3px,
+      transparent 3px 7px
+    ),
+    linear-gradient(#875832, #6b4423);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding: 2px;
   cursor: pointer;
 }
+/* 当月以外は乾いた休耕地。 */
 .cal-cell.off {
-  background: #f4f4f4;
-  color: #aaa;
+  background: linear-gradient(#9c8a70, #8a7860);
+  opacity: 0.6;
 }
+/* 今日＝目印の杭（金色の枠）。 */
 .cal-cell.today {
-  box-shadow: inset 0 0 0 2px #d94040;
+  box-shadow: inset 0 0 0 2px #ffd23f;
 }
+/* 選択中＝水をやった区画。 */
 .cal-cell.sel {
-  background: #e8f6cf;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.12) 0 3px,
+      transparent 3px 7px
+    ),
+    linear-gradient(#5a3c22, #4a3018);
+  box-shadow: inset 0 0 0 2px var(--green-lt);
 }
 .dnum {
   font-size: 11px;
+  color: #f3e9d8;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.55);
+}
+.cal-cell.sun .dnum {
+  color: #ff6b6b;
+}
+.cal-cell.sat .dnum {
+  color: #7db8ff;
+}
+.cal-cell.off .dnum {
+  color: rgba(255, 255, 255, 0.6);
+  text-shadow: none;
 }
 .dminos {
   display: flex;
   gap: 2px;
-  margin-top: 2px;
+  margin-top: auto;
 }
 .dot {
   width: 6px;
   height: 6px;
   border: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.5);
 }
+/* 芝生の上の予定リスト。 */
 .day-detail {
   margin-top: 10px;
   font-size: 13px;
+  flex: 1;
 }
 .hint {
-  color: #777;
+  color: #1f3d12;
   font-size: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px dashed rgba(31, 61, 18, 0.4);
+  padding: 8px 10px;
 }
 .day-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 1px dashed #bbb;
-  padding: 6px 2px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--wood-dark);
+  padding: 6px 8px;
+  margin-bottom: 6px;
 }
 .day-title {
   flex: 1;
@@ -423,24 +474,91 @@ textarea {
 
 /* ---------- バベル ---------- */
 .babel-screen {
+  /* 地平線の高さ（画面上端からの固定px）。ここを変えると空と地面の境目が動く。 */
+  --horizon: 300px;
   padding: 8px;
-  transition: background 600ms linear;
 }
+/* 空＋山は上端に固定高で貼り、緑（地面）は下方向に伸びるだけにする。
+   画面を縦に引き延ばしても地平線が動かない。 */
 .zone-ground {
-  background: linear-gradient(#bfe6ef 70%, #8ed14a 70%);
+  background:
+    /* 上端の固定帯：空→かすむ山（遠・近）→手前の芝生、の順に奥から重ねる。 */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 240' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23bfe6ef'/%3E%3Cstop offset='0.9' stop-color='%23e4f3f7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='240' fill='url(%23s)'/%3E%3Cpolygon points='0,215 70,120 140,185 225,105 300,175 355,125 400,155 400,215' fill='%23aac6c0'/%3E%3Cpolygon points='0,220 95,150 175,200 255,150 330,196 400,165 400,220' fill='%237aa84f'/%3E%3Cpolygon points='0,240 0,210 60,204 140,213 220,202 300,212 360,205 400,209 400,240' fill='%238ed14a'/%3E%3C/svg%3E")
+      top / 100% var(--horizon) no-repeat,
+    /* 地面いっぱいの芝テクスチャ（縦の草筋なので下に伸びても崩れない）。 */
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.06) 0 2px,
+      rgba(0, 0, 0, 0.05) 2px 5px
+    ),
+    linear-gradient(#8ed14a, #6cb636);
 }
+/* 中空：眼下に山の頂だけがのぞく。山は下端に固定高で貼り、伸ばしても崩れない。 */
 .zone-midair {
-  background: linear-gradient(#9fd8ef, #dff2f8);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 150' preserveAspectRatio='none'%3E%3Cpolygon points='0,150 60,66 120,110 190,52 260,104 330,62 400,98 400,150' fill='%23c3d8e6'/%3E%3Cpolygon points='0,150 90,96 160,126 240,84 320,120 400,96 400,150' fill='%23aecadd'/%3E%3Cg fill='%23ffffff' fill-opacity='0.75'%3E%3Cellipse cx='70' cy='140' rx='62' ry='13'/%3E%3Cellipse cx='230' cy='143' rx='72' ry='13'/%3E%3Cellipse cx='368' cy='139' rx='55' ry='12'/%3E%3C/g%3E%3C/svg%3E")
+      bottom / 100% 150px no-repeat,
+    linear-gradient(#9fd8ef, #dff2f8);
 }
+/* 上空：雲を背景に散らす。タイルを繰り返すので縦に伸ばすほど雲が増える。 */
 .zone-sky {
-  background: linear-gradient(#3f8fd0, #a8d8ef);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 200'%3E%3Cg fill='%23ffffff' fill-opacity='0.9'%3E%3Cellipse cx='60' cy='58' rx='30' ry='16'/%3E%3Ccircle cx='45' cy='52' r='16'/%3E%3Ccircle cx='68' cy='46' r='20'/%3E%3Ccircle cx='84' cy='54' r='15'/%3E%3Cellipse cx='190' cy='150' rx='34' ry='17'/%3E%3Ccircle cx='172' cy='144' r='16'/%3E%3Ccircle cx='196' cy='136' r='21'/%3E%3Ccircle cx='214' cy='146' r='15'/%3E%3C/g%3E%3C/svg%3E")
+      0 0 / 260px 200px repeat,
+    linear-gradient(#3f8fd0, #a8d8ef);
 }
+/* 大気圏：白い月。右上に固定サイズで配置。 */
 .zone-atmos {
-  background: linear-gradient(#123a72, #4a7fc0);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%23ffffff' fill-opacity='0.14'/%3E%3Ccircle cx='50' cy='50' r='34' fill='%23f4f2e8'/%3E%3Cg fill='%23e2ded0'%3E%3Ccircle cx='40' cy='42' r='6'/%3E%3Ccircle cx='60' cy='55' r='8'/%3E%3Ccircle cx='52' cy='34' r='4'/%3E%3Ccircle cx='44' cy='62' r='5'/%3E%3C/g%3E%3C/svg%3E")
+      right 26px top 34px / 84px 84px no-repeat,
+    linear-gradient(#123a72, #4a7fc0);
 }
+/* 宇宙：星のタイル＋斜めの天の川の帯。星は繰り返しで密度一定、天の川はグラデ。 */
 .zone-space {
-  background: radial-gradient(circle at 30% 20%, #2a2a55, #05050f 70%);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='20' cy='30' r='1.2'/%3E%3Ccircle cx='55' cy='80' r='1'/%3E%3Ccircle cx='90' cy='20' r='1.6' fill-opacity='0.8'/%3E%3Ccircle cx='130' cy='60' r='1'/%3E%3Ccircle cx='170' cy='40' r='1.4'/%3E%3Ccircle cx='40' cy='140' r='1.1'/%3E%3Ccircle cx='80' cy='170' r='1.5' fill-opacity='0.85'/%3E%3Ccircle cx='120' cy='120' r='1'/%3E%3Ccircle cx='160' cy='150' r='1.3'/%3E%3Ccircle cx='100' cy='95' r='0.9' fill-opacity='0.7'/%3E%3Ccircle cx='185' cy='100' r='1'/%3E%3Ccircle cx='10' cy='90' r='1'/%3E%3Ccircle cx='150' cy='185' r='1.1'/%3E%3Ccircle cx='65' cy='45' r='0.8' fill-opacity='0.6'/%3E%3C/g%3E%3C/svg%3E")
+      0 0 / 200px 200px repeat,
+    linear-gradient(
+      120deg,
+      transparent 32%,
+      rgba(150, 170, 255, 0.1) 42%,
+      rgba(210, 200, 255, 0.22) 50%,
+      rgba(255, 220, 235, 0.12) 58%,
+      transparent 68%
+    ),
+    radial-gradient(circle at 30% 20%, #2a2a55, #05050f 70%);
   color: #fff;
+}
+
+/* dev限定の背景ゾーン切替バー。本番ビルドでは描画されない。 */
+.dev-zone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+}
+.dev-zone-label {
+  font-size: 10px;
+  color: #fff;
+  opacity: 0.7;
+  padding: 0 2px;
+}
+.dev-zone button {
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  cursor: pointer;
+}
+.dev-zone button.on {
+  background: #ffe08a;
+  color: #241a12;
 }
 
 .babel-hud {
@@ -494,7 +612,7 @@ textarea {
   flex-direction: column;
   align-items: center;
 }
-.field {
+.play-field {
   display: grid;
   gap: 0;
   width: 100%;

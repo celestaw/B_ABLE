@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { TIER_COLOR, World, toDateKey } from '../../core';
 import { MinoView } from '../components/MinoView';
+import { RequestForm } from '../components/RequestForm';
 
 const WEEK = ['日', '月', '火', '水', '木', '金', '土'];
 
@@ -10,6 +11,7 @@ export function CalendarScreen({ world }: { world: World }) {
     return new Date(n.getFullYear(), n.getMonth(), 1);
   });
   const [selected, setSelected] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
 
   /** 月頭の曜日ぶん前から 6 週 42 マス。月ごとの分岐が要らないので処理が単純になる。 */
   const cells = useMemo(() => {
@@ -51,14 +53,18 @@ export function CalendarScreen({ world }: { world: World }) {
       </div>
 
       <div className="cal-grid">
-        {WEEK.map((w) => (
-          <div key={w} className="cal-head">
+        {WEEK.map((w, i) => (
+          <div
+            key={w}
+            className={'cal-head' + (i === 0 ? ' sun' : '') + (i === 6 ? ' sat' : '')}
+          >
             {w}
           </div>
         ))}
         {cells.map((d) => {
           const key = toDateKey(d);
           const list = byDue.get(key) ?? [];
+          const dow = d.getDay();
           return (
             <button
               key={key}
@@ -66,7 +72,9 @@ export function CalendarScreen({ world }: { world: World }) {
                 'cal-cell' +
                 (d.getMonth() !== cursor.getMonth() ? ' off' : '') +
                 (key === todayKey ? ' today' : '') +
-                (key === selected ? ' sel' : '')
+                (key === selected ? ' sel' : '') +
+                (dow === 0 ? ' sun' : '') +
+                (dow === 6 ? ' sat' : '')
               }
               onClick={() => setSelected(key === selected ? null : key)}
             >
@@ -100,6 +108,25 @@ export function CalendarScreen({ world }: { world: World }) {
           </div>
         ))}
       </div>
+
+      <button
+        className="fab"
+        onClick={() => setFormOpen(true)}
+        aria-label="タスクを追加"
+      >
+        ＋
+      </button>
+
+      {formOpen && (
+        <RequestForm
+          initialDue={selected ?? undefined}
+          onClose={() => setFormOpen(false)}
+          onSubmit={(input) => {
+            world.addTask(input);
+            setFormOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

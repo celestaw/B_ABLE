@@ -36,6 +36,20 @@ export function tierForDaysLeft(days: number): UrgencyTier {
   return UrgencyTier.Critical;
 }
 
+/**
+ * 重要度によるティア計算上の期限補正。
+ * 中央値 3 を基準に、重要度が 1 高いほど期限を 1 日前倒し（=早くティアが上がり
+ * ミノのマス数が増える）、1 低いほど 1 日後ろ倒しにする。
+ * 実効残日数は 0 未満にしない。期限なし（無限）はそのまま。
+ * 表示上の残日数（Task.daysLeft）はいじらず、あくまでミノ計算にだけ効かせる。
+ */
+export const IMPORTANCE_PIVOT = 3;
+
+export function effectiveDaysLeft(daysLeft: number, importance: number): number {
+  if (!isFinite(daysLeft)) return daysLeft;
+  return Math.max(0, daysLeft - (importance - IMPORTANCE_PIVOT));
+}
+
 /** ローカル日付を YYYY-MM-DD に。UTC 変換で日付がずれるのを避けるため自前で組む。 */
 export function toDateKey(d: Date): string {
   const p = (n: number) => String(n).padStart(2, '0');
