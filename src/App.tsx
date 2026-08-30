@@ -15,6 +15,20 @@ const TABS: readonly (readonly [Tab, string])[] = [
 export default function App() {
   const world = useWorld();
   const [tab, setTab] = useState<Tab>('list');
+  // 隠しコマンド：babel タブを5連打で開発者モード。以後は背景の切り替わる階数基準が
+  // 3/6/9/12 に圧縮され、デモで地上→宇宙の流れを低階数で見せられる（BabelScreen 側で反映）。
+  const [demoMode, setDemoMode] = useState(false);
+  const babelTaps = useRef(0);
+
+  const selectTab = (k: Tab) => {
+    if (k === 'babel') {
+      babelTaps.current += 1;
+      if (babelTaps.current >= 5) setDemoMode(true);
+    } else {
+      babelTaps.current = 0;
+    }
+    setTab(k);
+  };
 
   // 3画面とも常時マウントしたままにする。落下中に画面を移動しても
   // シミュレーションは World 側で走り続け、戻れば同じ位置から続きになる。
@@ -33,7 +47,7 @@ export default function App() {
           <ListScreen world={world} />
         </div>
         <div hidden={tab !== 'babel'} className="pane">
-          <BabelScreen world={world} />
+          <BabelScreen world={world} demo={demoMode} />
         </div>
       </main>
 
@@ -42,9 +56,9 @@ export default function App() {
           <button
             key={k}
             className={'tab' + (tab === k ? ' on' : '')}
-            onClick={() => setTab(k)}
+            onClick={() => selectTab(k)}
           >
-            {label}
+            {k === 'babel' && demoMode ? label.toUpperCase() : label}
             {k === 'babel' && world.inventory.length > 0 && (
               <span className="badge">{world.inventory.length}</span>
             )}

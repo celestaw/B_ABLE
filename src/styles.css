@@ -531,36 +531,6 @@ textarea {
   color: #fff;
 }
 
-/* dev限定の背景ゾーン切替バー。本番ビルドでは描画されない。 */
-.dev-zone {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 6px;
-  padding: 4px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px dashed rgba(255, 255, 255, 0.4);
-}
-.dev-zone-label {
-  font-size: 10px;
-  color: #fff;
-  opacity: 0.7;
-  padding: 0 2px;
-}
-.dev-zone button {
-  font-size: 11px;
-  padding: 3px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  cursor: pointer;
-}
-.dev-zone button.on {
-  background: #ffe08a;
-  color: #241a12;
-}
-
 .babel-hud {
   display: flex;
   justify-content: space-between;
@@ -611,6 +581,8 @@ textarea {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* 盤面を上寄せ→中央寄せにして、少し下げた位置に置く。 */
+  justify-content: center;
 }
 .play-field {
   display: grid;

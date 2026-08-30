@@ -27,12 +27,16 @@ export const TIER_LABEL: Readonly<Record<UrgencyTier, string>> = {
   [UrgencyTier.Critical]: '限界',
 };
 
-/** 残日数 -> ティア。境界は 14 / 7 / 3 / 1 日。 */
+/**
+ * 残日数 -> ティア。境界は 3 / 2 / 1 / 0 日。
+ * タスクは短い期間で回すものという想定で、日単位の粒度に寄せている。
+ * 3日以上前=青(余裕) / 2日前=緑(通常) / 1日前=黄(接近) / 当日=橙(切迫) / 超過=赤(限界)。
+ */
 export function tierForDaysLeft(days: number): UrgencyTier {
-  if (days >= 14) return UrgencyTier.Relaxed;
-  if (days >= 7) return UrgencyTier.Normal;
-  if (days >= 3) return UrgencyTier.Near;
-  if (days >= 1) return UrgencyTier.Tight;
+  if (days >= 3) return UrgencyTier.Relaxed;
+  if (days >= 2) return UrgencyTier.Normal;
+  if (days >= 1) return UrgencyTier.Near;
+  if (days >= 0) return UrgencyTier.Tight;
   return UrgencyTier.Critical;
 }
 

@@ -9,10 +9,8 @@ import {
 } from '../../core';
 import { MinoView } from '../components/MinoView';
 
-export function BabelScreen({ world }: { world: World }) {
+export function BabelScreen({ world, demo = false }: { world: World; demo?: boolean }) {
   const [toast, setToast] = useState<string | null>(null);
-  // dev限定：背景ゾーンの見た目確認用オーバーライド。null なら実際の階数から決める。
-  const [bgZone, setBgZone] = useState<string | null>(null);
 
   // World の更新に合わせてイベントを取り出す。表示用の一時的な文言は UI 側の責務。
   const version = useSyncExternalStore(world.subscribe, world.getVersion, world.getVersion);
@@ -49,8 +47,11 @@ export function BabelScreen({ world }: { world: World }) {
   }, [world]);
 
   const tower = world.tower;
-  const zone = zoneOf(tower.floors);
-  const bgKey = bgZone ?? zone.key;
+  // 通常は実際の階数帯。デモモードでは3階ごとに次のゾーンへ圧縮して切り替える
+  // （数タップで地上→宇宙まで見せられる。core の階数帯定数はいじらない）。
+  const zone = demo
+    ? ZONES[Math.min(Math.floor(tower.floors / 3), ZONES.length - 1)]
+    : zoneOf(tower.floors);
   const active = tower.activePiece;
 
   // 確定済み盤面に落下中のミノを重ねた描画用ビュー
@@ -64,27 +65,7 @@ export function BabelScreen({ world }: { world: World }) {
   }
 
   return (
-    <div className={'screen babel-screen zone-' + bgKey}>
-      {import.meta.env.DEV && (
-        <div className="dev-zone">
-          <span className="dev-zone-label">bg</span>
-          <button
-            className={bgZone === null ? 'on' : ''}
-            onClick={() => setBgZone(null)}
-          >
-            自動({zone.label})
-          </button>
-          {ZONES.map((z) => (
-            <button
-              key={z.key}
-              className={bgZone === z.key ? 'on' : ''}
-              onClick={() => setBgZone(z.key)}
-            >
-              {z.label}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className={'screen babel-screen zone-' + zone.key}>
       <div className="babel-hud">
         <div className="floor">
           <b>{tower.floors}</b> F<span className="zone-label">{zone.label}</span>

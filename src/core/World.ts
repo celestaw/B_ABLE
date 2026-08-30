@@ -87,12 +87,6 @@ export class World {
     this.commit();
   }
 
-  /** デモ/開発用：階数を直接セットして通知する。隠しコマンドから呼ぶ。 */
-  devSetFloors(n: number): void {
-    this.tower.devSetFloors(n);
-    this.commit();
-  }
-
   dispatch(cmd: Command): void {
     if (!this.tower.hasActive) return;
     this.events.push(...this.tower.execute(cmd));

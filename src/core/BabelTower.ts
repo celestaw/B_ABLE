@@ -127,11 +127,6 @@ export class BabelTower {
     return this.active !== null;
   }
 
-  /** デモ/開発用：階数を直接指定する。通常のゲーム進行（行消し・崩壊）では使わない。 */
-  devSetFloors(n: number): void {
-    this.floors = Math.max(0, Math.floor(n));
-  }
-
   /** 建材を1つ投入する。天井に入らなければ崩壊。 */
   spawn(spec: MinoSpec): TowerEvent[] {
     if (this.active) return [];
